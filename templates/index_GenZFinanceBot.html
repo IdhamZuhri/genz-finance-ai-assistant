@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenZ Finance Bot - Smart Money for Teens 💸</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #1976D2;
+            --secondary: #43A047;
+            --accent: #FFD600;
+            --light-blue: #E3F2FD;
+            --light-green: #E8F5E9;
+            --user-bubble: #BBDEFB;
+            --bot-bubble: #FFF9C4;
+            --text-dark: #263238;
+            --text-light: #555;
+        }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e8f5e9 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .banner {
+            text-align: center;
+            margin-bottom: 10px;
+            animation: fadeInDown 0.8s ease;
+        }
+        .banner img {
+            width: 120px;
+            height: auto;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 3px;
+        }
+        .stats-bar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .stats-bar i { margin-right: 8px; color: var(--accent); }
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+        .module {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: fit-content;
+            animation: fadeInUp 0.7s ease;
+        }
+        .module-header {
+            padding: 12px 16px;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        #chat-container .module-header {
+            background: linear-gradient(135deg, #1976D2, #43A047);
+        }
+        #budget-container .module-header {
+            background: linear-gradient(135deg, #FFD600, #43A047);
+        }
+        .module-body {
+            padding: 12px;
+        }
+        .chat-box {
+            height: 500px;
+            overflow-y: auto;
+            padding: 12px;
+            background: var(--light-green);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            line-height: 1.4;
+            font-size: 15px;
+            animation: slideIn 0.4s ease;
+        }
+        .user-msg {
+            align-self: flex-end;
+            background: var(--user-bubble);
+            color: #000000;
+            border-bottom-right-radius: 6px;
+        }
+        .bot-msg {
+            align-self: flex-start;
+            background: var(--bot-bubble);
+            color: #000000;
+            border-bottom-left-radius: 6px;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        #user-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.15);
+        }
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(25,118,210,0.4);
+        }
+        .send-btn:hover {
+            background: #1565C0;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn {
+            margin-top: 8px;
+            padding: 10px 20px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .submit-btn:hover {
+            background: #388E3C;
+        }
+        .submit-btn:disabled {
+            background: #9E9E9E;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .typing {
+            font-style: italic;
+            color: #888;
+            align-self: flex-start;
+            background: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 20px;
+        }
+        @media (max-width: 992px) {
+            .split-container {
+                grid-template-columns: 1fr;
+            }
+            .banner img { width: 150px; }
+            .title { font-size: 24px; }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .subscription-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            margin-bottom: 6px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .subscription-item:hover {
+            background: #e8f5e9;
+        }
+        .subscription-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--secondary);
+        }
+        .subscription-item label {
+            flex: 1;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-dark);
+            font-size: 14px;
+        }
+        .subscription-item input[type="number"] {
+            width: 80px;
+            padding: 6px 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: right;
+        }
+        .subscription-item input[type="number"]:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+        .subscription-total {
+            text-align: center;
+            padding: 12px;
+            background: var(--light-blue);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .subscription-total strong {
+            color: var(--secondary);
+            font-size: 18px;
+        }
+        .subscription-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .subscription-buttons button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-clear {
+            background: #f44336;
+            color: white;
+        }
+        .btn-clear:hover {
+            background: #d32f2f;
+        }
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: var(--primary);
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #1976D2, #43A047);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<a href="/" class="home-btn"><i class="fas fa-home"></i> Home</a>
+<div class="container">
+    <div class="banner">
+        <img src="{{ url_for('static', filename='icons/Finance.jpg') }}" alt="GenZ Finance Bot">
+        <div class="title"> GenZ Finance Bot</div>
+        <div class="subtitle">Your AI-Powered Money Mentor 🚀</div>
+    </div>
+
+    <div class="split-container">
+        <div class="module" id="chat-container">
+            <div class="module-header">
+                <i class="fas fa-comments-dollar"></i> Chat with GenZ Finance Bot
+            </div>
+            <div class="module-body">
+                <div class="chat-box" id="chat-box">
+                    <div class="bot-msg">Hi! I'm GenZ Finance Bot 👋 Ask me anything about money, saving, budgeting, or investing!</div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="user-input" placeholder="Type your money question here..." onkeydown="if(event.key==='Enter') sendMessage()">
+                    <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="module" id="budget-container">
+            <div class="module-header">
+                <i class="fas fa-chart-line"></i> Budget Analyzer
+            </div>
+            <div class="module-body">
+                <div style="margin-bottom: 10px; padding: 10px; background: var(--light-green); border-radius: 10px; border-left: 3px solid var(--secondary);">
+                    <p style="font-size: 13px; line-height: 1.5; color: var(--text-dark); margin: 0;">
+                        <strong style="color: var(--secondary);">📊 Analyze Your Spending</strong><br>
+                        Enter your monthly income and expenses in <strong>Ringgit Malaysia (RM)</strong> to get an instant breakdown of your budget. Our AI will analyze your spending patterns and provide personalized recommendations to help you save more and spend smarter!
+                    </p>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight: 600; color: var(--text-dark); margin-bottom: 5px; display: block; font-size: 14px;">💰 Monthly Income</label>
+                    <input type="number" id="income" placeholder="e.g., 500" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 10px; font-size: 15px;" oninput="updateSubscriptionsTotal()">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight: 600; color: var(--text-dark); margin-bottom: 5px; display: block; font-size: 14px;">🍕 Food & Snacks</label>
+                    <input type="number" id="food" placeholder="e.g., 150" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 10px; font-size: 15px;" oninput="updateSubscriptionsTotal()">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight: 600; color: var(--text-dark); margin-bottom: 5px; display: block; font-size: 14px;">🚌 Transport</label>
+                    <input type="number" id="transport" placeholder="e.g., 50" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 10px; font-size: 15px;" oninput="updateSubscriptionsTotal()">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight: 600; color: var(--text-dark); margin-bottom: 8px; display: block;">📱 Subscriptions</label>
+                    <div id="subscriptions-list"></div>
+                    <div class="subscription-total">
+                        <span style="font-weight: 600;">Monthly Total Expenses: </span>
+                        <strong>RM <span id="subscriptions-total">0.00</span></strong>
+                    </div>
+                    <div class="subscription-buttons">
+                        <button class="btn-clear" onclick="clearSubscriptions()" style="width: 100%;"><i class="fas fa-trash"></i> Clear All</button>
+                    </div>
+                </div>
+                <button id="analyze-btn" class="submit-btn" onclick="calculateBudget()" style="margin-top: 5px;">Analyze My Budget</button>
+                <div id="budget-result" style="display: none; margin-top: 10px; padding: 12px; background: var(--light-blue); border-radius: 12px;">
+                    <h3 style="color: var(--primary); margin-bottom: 10px; font-size: 16px;">💡 Your Budget Summary</h3>
+                    <div style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+                        <p style="margin-bottom: 8px; font-size: 14px;"><strong>Total Expenses:</strong> <span style="color: #d32f2f; font-size: 16px; font-weight: 700;">RM <span id="total-expenses">0</span></span></p>
+                        <p style="margin-bottom: 0; font-size: 14px;"><strong>Savings:</strong> <span style="color: #43A047; font-size: 16px; font-weight: 700;">RM <span id="savings">0</span></span> <span style="color: #666;">(<span id="savings-percent">0</span>%)</span></p>
+                    </div>
+                    <div style="background: #FFF9C4; padding: 10px; border-radius: 10px; border-left: 3px solid #FBC02D;">
+                        <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #333; white-space: pre-line;" id="budget-advice"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // ============================================================
+    // SUBSCRIPTIONS MANAGER
+    // ============================================================
+    
+    const SUBSCRIPTION_CATALOG = [
+        { id: 'mobile-data', name: 'Mobile Data', defaultAmount: 0 },
+        { id: 'spotify', name: 'Spotify', defaultAmount: 0},
+        { id: 'youtube', name: 'YouTube Premium', defaultAmount: 0 },
+        { id: 'netflix', name: 'Netflix', defaultAmount: 0 },
+        { id: 'cloud', name: 'Cloud Storage', defaultAmount: 0 }
+    ];
+    
+    const STORAGE_KEY = 'subscriptionsData';
+    let subscriptionsData = {};
+    
+    function loadSubscriptions() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                subscriptionsData = JSON.parse(stored);
+            } catch (e) {
+                subscriptionsData = {};
+            }
+        }
+        renderSubscriptions();
+    }
+    
+    function persistSubscriptions() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(subscriptionsData));
+    }
+    
+    function renderSubscriptions() {
+        const listContainer = document.getElementById('subscriptions-list');
+        listContainer.innerHTML = '';
+        
+        SUBSCRIPTION_CATALOG.forEach(sub => {
+            const isChecked = subscriptionsData.hasOwnProperty(sub.id);
+            const amount = subscriptionsData[sub.id] || sub.defaultAmount;
+            
+            const item = document.createElement('div');
+            item.className = 'subscription-item';
+            item.innerHTML = `
+                <input type="checkbox" id="sub-${sub.id}" ${isChecked ? 'checked' : ''} 
+                    onchange="toggleSubscription('${sub.id}')">
+                <label for="sub-${sub.id}">${sub.name}</label>
+                <input type="number" id="amount-${sub.id}" value="${amount}" min="0" step="0.01"
+                    ${!isChecked ? 'disabled' : ''} 
+                    onchange="updateSubscriptionAmount('${sub.id}', this.value)">
+            `;
+            listContainer.appendChild(item);
+        });
+        
+        updateSubscriptionsTotal();
+    }
+    
+    function toggleSubscription(subId) {
+        if (subscriptionsData.hasOwnProperty(subId)) {
+            delete subscriptionsData[subId];
+        } else {
+            const sub = SUBSCRIPTION_CATALOG.find(s => s.id === subId);
+            subscriptionsData[subId] = sub.defaultAmount;
+        }
+        persistSubscriptions();
+        renderSubscriptions();
+    }
+    
+    function updateSubscriptionAmount(subId, value) {
+        const amount = parseFloat(value) || 0;
+        if (subscriptionsData.hasOwnProperty(subId)) {
+            subscriptionsData[subId] = amount;
+            persistSubscriptions();
+            updateSubscriptionsTotal();
+        }
+    }
+    
+    function updateSubscriptionsTotal() {
+        // Get all expense values
+        const food = parseFloat(document.getElementById('food').value) || 0;
+        const transport = parseFloat(document.getElementById('transport').value) || 0;
+        const subscriptions = Object.values(subscriptionsData).reduce((sum, amount) => sum + amount, 0);
+        
+        // Calculate total of food, transport, and subscriptions
+        const total = food + transport + subscriptions;
+        
+        document.getElementById('subscriptions-total').textContent = total.toFixed(2);
+    }
+    
+    function getSubscriptionsTotal() {
+        return Object.values(subscriptionsData).reduce((sum, amount) => sum + amount, 0);
+    }
+    
+    function getSubscriptionsBreakdown() {
+        return Object.entries(subscriptionsData).map(([id, amount]) => {
+            const sub = SUBSCRIPTION_CATALOG.find(s => s.id === id);
+            return { id, name: sub ? sub.name : id, amount };
+        });
+    }
+    
+    function clearSubscriptions() {
+        if (confirm('Clear all budget data (income, expenses, and subscriptions)?')) {
+            // Clear all input fields
+            document.getElementById('income').value = '';
+            document.getElementById('food').value = '';
+            document.getElementById('transport').value = '';
+            
+            // Clear subscriptions
+            subscriptionsData = {};
+            localStorage.removeItem(STORAGE_KEY);
+            renderSubscriptions();
+            
+            // Clear budget result display
+            document.getElementById('budget-result').style.display = 'none';
+            document.getElementById('total-expenses').textContent = '0';
+            document.getElementById('savings').textContent = '0';
+            document.getElementById('savings-percent').textContent = '0';
+            document.getElementById('budget-advice').textContent = '';
+            
+            // Update total display
+            updateSubscriptionsTotal();
+        }
+    }
+
+    
+    function syncWithBudgetCalculator() {
+        console.log('Subscriptions synced:', getSubscriptionsTotal());
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSubscriptions();
+    });
+    
+    // ============================================================
+    // CHAT FUNCTIONALITY
+    // ============================================================
+    
+    async function sendMessage() {
+        const input = document.getElementById("user-input");
+        const message = input.value.trim();
+        if (!message) return;
+        const chatBox = document.getElementById("chat-box");
+        const userDiv = document.createElement("div");
+        userDiv.className = "message user-msg";
+        userDiv.textContent = message;
+        chatBox.appendChild(userDiv);
+        const typing = document.createElement("div");
+        typing.className = "message typing";
+        typing.textContent = "GenZ Finance Bot is thinking...";
+        chatBox.appendChild(typing);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        input.value = "";
+        try {
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message, username: "guest" })
+            });
+            const data = await response.json();
+            typing.remove();
+            const botDiv = document.createElement("div");
+            botDiv.className = "message bot-msg";
+            botDiv.textContent = data.response;
+            chatBox.appendChild(botDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } catch (err) {
+            typing.remove();
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "message bot-msg";
+            errorDiv.textContent = "Sorry, I'm having trouble connecting. Try again!";
+            chatBox.appendChild(errorDiv);
+        }
+    }
+    async function calculateBudget() {
+        const income = parseFloat(document.getElementById("income").value) || 0;
+        const food = parseFloat(document.getElementById("food").value) || 0;
+        const transport = parseFloat(document.getElementById("transport").value) || 0;
+        
+        // Get subscriptions total from manager
+        const subscriptionCost = getSubscriptionsTotal();
+        
+        if (income <= 0) {
+            alert("Please enter your monthly income!");
+            return;
+        }
+        
+        const expenses = {
+            food: food,
+            transport: transport,
+            subscription: subscriptionCost
+        };
+        
+        // Show loading state
+        const analyzeBtn = document.getElementById("analyze-btn");
+        const originalText = analyzeBtn.innerHTML;
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<span class="spinner"></span>Analyzing...';
+        
+        try {
+            const response = await fetch("/calculate_budget", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: "guest",
+                    income: income,
+                    expenses: expenses
+                })
+            });
+            
+            const data = await response.json();
+            
+            document.getElementById("total-expenses").textContent = data.total_expenses.toFixed(2);
+            document.getElementById("savings").textContent = data.savings.toFixed(2);
+            document.getElementById("savings-percent").textContent = data.savings_percentage.toFixed(1);
+            document.getElementById("budget-advice").textContent = data.advice;
+            document.getElementById("budget-result").style.display = "block";
+            
+            // Scroll to result
+            document.getElementById("budget-result").scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch (err) {
+            alert("Oops! Something went wrong. Try again!");
+        } finally {
+            // Restore button state
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = originalText;
+        }
+    }
+</script>
+</body>
+</html>
