@@ -39,4 +39,3 @@ GenZ Finance Bot provides:
 - **Backend:** Node.js / Flask 
 - **AI Logic:** Rule-based / API-based  
 
-git clone https://github.com/your-username/genz-finance-bot.git
